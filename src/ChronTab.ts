@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import { Job } from "./Job";
+import { TimeCondition } from "./TimeCondition";
 
 /// Overall ojbect wrapper for the task
 export class Chron {
@@ -47,6 +48,7 @@ export class Chron {
 
         // If no errors, update filepath value
         this.filepath = filepath;
+        console.log("Chron: Instance updated with new filepath.");
     }
 
     /// Takes in a chrontab file's text, and updates the instance accordingly. Errors if syntax is invalid. Does not update values if errors on parse
@@ -60,17 +62,26 @@ export class Chron {
 
         // Try to build a job out of each line, adding to roster if successful, and stoppiing the Chron update if not
         const jobsRoster: Job[] = lines.map((line, idx) => {
-            const lineParts = line.split(" ");
+            const lineParts = line.split(/\s+/); // Some people say to never use regex, In this case I think it is a parsimonious way to handle variable spaces due to formatting of input file
+            // 7 lines parts corresponds to the basic job listing
 
-            console.log(lineParts);
+            const timeValues = lineParts.slice(0, 5);
+            const commandValues = lineParts.slice(5);
 
-            const minute = 999;
-            const hour = 999;
-            const dom = 999;
-            const month = 999;
-            const dow = 999;
-            const command = "foo";
-            const filepath = "bar";
+            const lastIndex = commandValues.length - 1; // (Not in love with this pattern)
+            const filepath = commandValues[lastIndex];
+            const command = commandValues.slice(0, lastIndex).join(" ");
+
+            // console.log("line", line);
+            // console.log("lineParts", lineParts);
+            // console.log("timeValues", timeValues);
+            // console.log("commandValues", commandValues);
+
+            const minute = TimeCondition.fromString(timeValues[0], "minute");
+            const hour = TimeCondition.fromString(timeValues[1], "hour");
+            const dom = TimeCondition.fromString(timeValues[2], "dom");
+            const month = TimeCondition.fromString(timeValues[3], "month");
+            const dow = TimeCondition.fromString(timeValues[4], "dow");
 
             return new Job({
                 minute,
@@ -80,9 +91,17 @@ export class Chron {
                 dow,
                 command,
                 filepath,
+                id: idx,
             });
         });
 
         this.jobs = jobsRoster;
+        console.log("Chron: Instance updated with new job roster.");
+    }
+
+    printJobs(): void {
+        this.jobs.map((job, idx) => {
+            console.log(`\nJob ${idx}: ${JSON.stringify(job, null, 2)}`);
+        });
     }
 }

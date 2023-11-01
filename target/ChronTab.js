@@ -44,6 +44,7 @@ var Chron = /** @class */ (function () {
         this.parseText(fileText);
         // If no errors, update filepath value
         this.filepath = filepath;
+        console.log("Chron: Instance updated with new filepath.");
     };
     /// Takes in a chrontab file's text, and updates the instance accordingly. Errors if syntax is invalid. Does not update values if errors on parse
     Chron.prototype.parseText = function (fileText) {
@@ -53,18 +54,42 @@ var Chron = /** @class */ (function () {
             .filter(function (line) { return !line.startsWith("#"); }) // Remove comments
             .map(function (line) { return line.replace("\r", ""); }) // For my readability sake
             .filter(function (line) { return line !== ""; }); // Remove empty lines
-        console.log(lines);
         // Try to build a job out of each line, adding to roster if successful, and stoppiing the Chron update if not
         var jobsRoster = lines.map(function (line, idx) {
+            var lineParts = line.split(/\s+/); // Some people say to never use regex, In this case I think it is a parsimonious way to handle variable spaces due to formatting of input file
+            // 7 lines parts corresponds to the basic job listing
+            var timeValues = lineParts.slice(0, 5);
+            var commandValues = lineParts.slice(5);
+            var lastIndex = commandValues.length - 1; // (Not in love with this pattern)
+            var filepath = commandValues[lastIndex];
+            var command = commandValues.slice(0, lastIndex).join(" ");
+            // console.log("line", line);
+            // console.log("lineParts", lineParts);
+            // console.log("timeValues", timeValues);
+            // console.log("commandValues", commandValues);
+            var minute = Job_1.TimeCondition.fromString(timeValues[0], "minute");
+            var hour = Job_1.TimeCondition.fromString(timeValues[1], "hour");
+            var dom = Job_1.TimeCondition.fromString(timeValues[2], "dom");
+            var month = Job_1.TimeCondition.fromString(timeValues[3], "month");
+            var dow = Job_1.TimeCondition.fromString(timeValues[4], "dow");
             return new Job_1.Job({
                 minute: minute,
                 hour: hour,
                 dom: dom,
                 month: month,
                 dow: dow,
+                command: command,
+                filepath: filepath,
+                id: idx,
             });
         });
         this.jobs = jobsRoster;
+        console.log("Chron: Instance updated with new job roster.");
+    };
+    Chron.prototype.printJobs = function () {
+        this.jobs.map(function (job, idx) {
+            console.log("\nJob ".concat(idx, ": ").concat(JSON.stringify(job, null, 2)));
+        });
     };
     return Chron;
 }());
