@@ -33,9 +33,9 @@ var TimeCondition = /** @class */ (function () {
         // ! Assumes there cannot be both a range and a repitition interval, e.g. */1-2
         var timeConditions = string.split(",");
         // Turn each column (`Scale`) into an array, containing each of its conditions (e.g. both of '1-6, 7-9')
-        return timeConditions.map(function (condition) {
-            if (condition.includes("-")) {
-                var bounds = condition.split("-");
+        return timeConditions.map(function (value) {
+            if (value.includes("-")) {
+                var bounds = value.split("-");
                 try {
                     return new TimeCondition({
                         type: TimeConditionType.range,
@@ -50,8 +50,8 @@ var TimeCondition = /** @class */ (function () {
                     throw new Error("Conversion from string value to TimeCondition failed, due to parseInt being unable to extract numbers from '".concat(string, "'\n\nAbove error: ").concat(JSON.stringify(error)));
                 }
             }
-            else if (condition.includes("*/")) {
-                var period = condition.replace("*/", "");
+            else if (value.includes("*/")) {
+                var period = value.replace("*/", "");
                 try {
                     return new TimeCondition({
                         type: TimeConditionType.interval,
@@ -67,7 +67,7 @@ var TimeCondition = /** @class */ (function () {
                 try {
                     return new TimeCondition({
                         type: TimeConditionType.number,
-                        value: parseInt(condition),
+                        value: parseInt(value),
                         scale: scale,
                     });
                 }

@@ -37,7 +37,14 @@ export class Chron {
 
     /**  Reads provided filepath into instance, saving in filepath property, retrieving email, and setting jobs list to file contents */
     import(filepath: string) {
-        // todo) Validate filepath as a filepath
+        // Validate filepath string
+        if (!filepath) {
+            throw new Error("Chron: No filepath provided to `.import()`");
+        }
+        const invalidCharacters = /[<>:"|?*]/; // ?) This may need tweaking
+        if (invalidCharacters.test(filepath)) {
+            throw new Error("Chron: Invalid characters found in filepath provided to `.import()`");
+        }
 
         // Depending on the language, catch error for type. Not sure if this is the preferred typescript pattern for this. Return specific prompt for failure modes
         let fileText = "";
