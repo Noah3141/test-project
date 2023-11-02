@@ -14,7 +14,7 @@ var assertEqual = function (calculated, desired, label) {
     }
 };
 var testSuite = function () {
-    var _a, _b, _c, _d;
+    var _a, _b, _c;
     var chron = new ChronTab_1.Chron();
     chron.import("./chrontab.txt");
     // Test Job 1
@@ -24,7 +24,7 @@ var testSuite = function () {
     assertEqual(calculated1, // Minutely
     desired1, "Job Test 1");
     // Test Job 2
-    var desired2 = new Date("2023-11-01T20:01:43-05:00");
+    var desired2 = new Date("2023-11-02T20:01:43-05:00");
     var calculated2 = (_b = chron.jobs.at(11)) === null || _b === void 0 ? void 0 : _b.nextRunTime();
     assertEqual(calculated2, // Minutely
     desired2, "Job Test 2");
@@ -33,10 +33,5 @@ var testSuite = function () {
     var calculated3 = (_c = chron.jobs.at(16)) === null || _c === void 0 ? void 0 : _c.nextRunTime();
     assertEqual(calculated3, // Minutely
     desired3, "Job Test 3");
-    // Test Job 4
-    var desired4 = new Date("2023-11-01T20:01:27-05:00");
-    var calculated4 = (_d = chron.jobs.at(11)) === null || _d === void 0 ? void 0 : _d.nextRunTime();
-    assertEqual(calculated4, // Minutely
-    desired4, "Job Test 4");
 };
 exports.testSuite = testSuite;

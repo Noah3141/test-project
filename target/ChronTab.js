@@ -41,7 +41,7 @@ var Chron = /** @class */ (function () {
         if (!filepath) {
             throw new Error("Chron: No filepath provided to `.import()`");
         }
-        var invalidCharacters = /[<>:"|?*]/;
+        var invalidCharacters = /[<>:"|?*]/; // ?) This may need tweaking
         if (invalidCharacters.test(filepath)) {
             throw new Error("Chron: Invalid characters found in filepath provided to `.import()`");
         }
@@ -94,11 +94,11 @@ var Chron = /** @class */ (function () {
             var lastIndex = commandValues.length - 1; // (Not in love with this pattern)
             var filepath = commandValues[lastIndex];
             var command = commandValues.slice(0, lastIndex).join(" ");
-            var minute = TimeCondition_1.TimeCondition.fromString(timeValues[0], "minute");
-            var hour = TimeCondition_1.TimeCondition.fromString(timeValues[1], "hour");
-            var dom = TimeCondition_1.TimeCondition.fromString(timeValues[2], "dom");
-            var month = TimeCondition_1.TimeCondition.fromString(timeValues[3], "month");
-            var dow = TimeCondition_1.TimeCondition.fromString(timeValues[4], "dow");
+            var minute = TimeCondition_1.TimeCondition.fromString(timeValues[0], "minute", idx);
+            var hour = TimeCondition_1.TimeCondition.fromString(timeValues[1], "hour", idx);
+            var dom = TimeCondition_1.TimeCondition.fromString(timeValues[2], "dom", idx);
+            var month = TimeCondition_1.TimeCondition.fromString(timeValues[3], "month", idx);
+            var dow = TimeCondition_1.TimeCondition.fromString(timeValues[4], "dow", idx);
             return new Job_1.Job({
                 minute: minute,
                 hour: hour,

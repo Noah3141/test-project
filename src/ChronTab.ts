@@ -100,11 +100,11 @@ export class Chron {
             const filepath = commandValues[lastIndex];
             const command = commandValues.slice(0, lastIndex).join(" ");
 
-            const minute = TimeCondition.fromString(timeValues[0], "minute");
-            const hour = TimeCondition.fromString(timeValues[1], "hour");
-            const dom = TimeCondition.fromString(timeValues[2], "dom");
-            const month = TimeCondition.fromString(timeValues[3], "month");
-            const dow = TimeCondition.fromString(timeValues[4], "dow");
+            const minute = TimeCondition.fromString(timeValues[0], "minute", idx);
+            const hour = TimeCondition.fromString(timeValues[1], "hour", idx);
+            const dom = TimeCondition.fromString(timeValues[2], "dom", idx);
+            const month = TimeCondition.fromString(timeValues[3], "month", idx);
+            const dow = TimeCondition.fromString(timeValues[4], "dow", idx);
 
             return new Job({
                 minute,

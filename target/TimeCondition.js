@@ -11,12 +11,84 @@ var utils_1 = require("./utils");
  * `value: number | Interval | Range | null`, where `Interval` is a number, `Range` has a min and a max, and null encodes a wildcard.
  */
 var TimeCondition = /** @class */ (function () {
+    /** Validate inputted TimeCriteria */
     function TimeCondition(_a) {
-        var type = _a.type, value = _a.value, scale = _a.scale;
+        var type = _a.type, value = _a.value, scale = _a.scale, jobId = _a.jobId;
+        this.validate({ type: type, value: value, scale: scale, jobId: jobId });
         this.type = type;
         this.scale = scale;
         this.value = value;
+        this.jobId = jobId;
     }
+    TimeCondition.prototype.validate = function (_a) {
+        var type = _a.type, value = _a.value, scale = _a.scale, jobId = _a.jobId;
+        switch (type) {
+            case TimeConditionType.interval:
+                break;
+            case TimeConditionType.number:
+                if (typeof value !== "number") {
+                    throw new Error("Value not provided as 'number' for a TimeCondition in Job ID: ".concat(jobId));
+                }
+                switch (scale) {
+                    case "minute":
+                        if (value > 60)
+                            throw new Error("Value provided for minutes above 60 for Job ID: ".concat(jobId));
+                        break;
+                    case "hour":
+                        if (value > 60)
+                            throw new Error("Value provided for hours above 60 for Job ID: ".concat(jobId));
+                        break;
+                    case "dom":
+                        if (value > 31)
+                            throw new Error("Value provided for day of month above 31 for Job ID: ".concat(jobId));
+                        break;
+                    case "month":
+                        if (value > 12) {
+                            throw new Error("Value provided for month above 12 for Job ID: ".concat(jobId));
+                        }
+                        break;
+                    case "dow":
+                        if (value > 7)
+                            throw new Error("Value provided for day of week above 7 for Job ID: ".concat(jobId));
+                        break;
+                }
+                break;
+            case TimeConditionType.range:
+                var _b = value, min = _b.min, max = _b.max;
+                if (typeof min == "undefined" || typeof max == "undefined") {
+                    throw new Error("No min/max for Job ID parsed as a range: ".concat(jobId));
+                }
+                if (min < 0) {
+                    throw new Error("Range minimum provided below 0");
+                }
+                switch (scale) {
+                    case "minute":
+                        if (max > 60)
+                            throw new Error("Range maximum for minutes above 60 for Job ID: ".concat(jobId));
+                        break;
+                    case "hour":
+                        if (max > 60)
+                            throw new Error("Range maximum for hour above 60 for Job ID: ".concat(jobId));
+                        break;
+                    case "dom":
+                        if (max > 31)
+                            throw new Error("Range maximum for day of month above 31 for Job ID: ".concat(jobId));
+                        break;
+                    case "month":
+                        if (max > 12) {
+                            throw new Error("Range maximum for month above 12 for Job ID: ".concat(jobId));
+                        }
+                        break;
+                    case "dow":
+                        if (max > 7)
+                            throw new Error("Range maximum for day of week above 7 for Job ID: ".concat(jobId));
+                        break;
+                }
+                break;
+            case TimeConditionType.wildcard:
+                break;
+        }
+    };
     /**  Converts a singular time entry into its values, e.g.
      *
      * \*\/10 `=> [{TimeConditionType.interval, value: 10}]: TimeCondition[]`
@@ -24,11 +96,13 @@ var TimeCondition = /** @class */ (function () {
      * 1-6, 4-10 `=> [{TimeConditionType.range, value: {min:1, max:6} }, {TimeConditionType.range, value: {min:4, max:10} }]: TimeCondition[]`
     /*
     */
-    TimeCondition.fromString = function (string, scale) {
+    TimeCondition.fromString = function (string, scale, jobId) {
         // Convert a string value into corresponding TimeCondition
         // If just a wildcard, there cannot be other options, so the whole array is one TimeCondition: wildcard/null
         if (string === "*") {
-            return [new TimeCondition({ type: TimeConditionType.wildcard, value: null, scale: scale })];
+            return [
+                new TimeCondition({ type: TimeConditionType.wildcard, value: null, scale: scale, jobId: jobId }),
+            ];
         }
         // ! Assumes there cannot be both a range and a repitition interval, e.g. */1-2
         var timeConditions = string.split(",");
@@ -36,44 +110,34 @@ var TimeCondition = /** @class */ (function () {
         return timeConditions.map(function (value) {
             if (value.includes("-")) {
                 var bounds = value.split("-");
-                try {
-                    return new TimeCondition({
-                        type: TimeConditionType.range,
-                        value: {
-                            min: parseInt(bounds[0]),
-                            max: parseInt(bounds[1]),
-                        },
-                        scale: scale,
-                    });
-                }
-                catch (error) {
-                    throw new Error("Conversion from string value to TimeCondition failed, due to parseInt being unable to extract numbers from '".concat(string, "'\n\nAbove error: ").concat(JSON.stringify(error)));
-                }
+                var min = parseInt(bounds[0]);
+                var max = parseInt(bounds[1]);
+                return new TimeCondition({
+                    type: TimeConditionType.range,
+                    value: {
+                        min: min,
+                        max: max,
+                    },
+                    scale: scale,
+                    jobId: jobId,
+                });
             }
             else if (value.includes("*/")) {
                 var period = value.replace("*/", "");
-                try {
-                    return new TimeCondition({
-                        type: TimeConditionType.interval,
-                        value: parseInt(period),
-                        scale: scale,
-                    });
-                }
-                catch (error) {
-                    throw new Error("Conversion from string value to TimeCondition failed, due to parseInt being unable to extract numbers from '".concat(string, "' at ").concat(period, " \n\nAbove error: ").concat(JSON.stringify(error)));
-                }
+                return new TimeCondition({
+                    type: TimeConditionType.interval,
+                    value: parseInt(period),
+                    scale: scale,
+                    jobId: jobId,
+                });
             }
             else {
-                try {
-                    return new TimeCondition({
-                        type: TimeConditionType.number,
-                        value: parseInt(value),
-                        scale: scale,
-                    });
-                }
-                catch (error) {
-                    throw new Error("Conversion from string value to TimeCondition failed, due to parseInt being unable to extract numbers from '".concat(string, "'\n\nAbove error: ").concat(JSON.stringify(error)));
-                }
+                return new TimeCondition({
+                    type: TimeConditionType.number,
+                    value: parseInt(value),
+                    scale: scale,
+                    jobId: jobId,
+                });
             }
         });
     };

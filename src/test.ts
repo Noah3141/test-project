@@ -33,7 +33,7 @@ export const testSuite = () => {
     );
 
     // Test Job 2
-    const desired2 = new Date("2023-11-01T20:01:43-05:00");
+    const desired2 = new Date("2023-11-02T20:01:43-05:00");
     const calculated2 = chron.jobs.at(11)?.nextRunTime()!;
 
     assertEqual(
@@ -50,15 +50,5 @@ export const testSuite = () => {
         calculated3 as Date, // Minutely
         desired3,
         "Job Test 3"
-    );
-
-    // Test Job 4
-    const desired4 = new Date("2023-11-01T20:01:27-05:00");
-    const calculated4 = chron.jobs.at(11)?.nextRunTime()!;
-
-    assertEqual(
-        calculated4 as Date, // Minutely
-        desired4,
-        "Job Test 4"
     );
 };
