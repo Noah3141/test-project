@@ -36,16 +36,17 @@ export class TimeCondition {
     static fromString(string: string, scale: Scale): TimeCondition[] {
         // Convert a string value into corresponding TimeCondition
 
+        // If just a wildcard, there cannot be other options, so the whole array is one TimeCondition: wildcard/null
         if (string === "*") {
             return [new TimeCondition({ type: TimeConditionType.wildcard, value: null, scale })];
         }
         // ! Assumes there cannot be both a range and a repitition interval, e.g. */1-2
-        const values = string.split(",");
+        const timeConditions = string.split(",");
 
-        return values.map((value): TimeCondition => {
-            if (value.includes("-")) {
-                const bounds = value.split("-");
-
+        // Turn each column (`Scale`) into an array, containing each of its conditions (e.g. both of '1-6, 7-9')
+        return timeConditions.map((condition): TimeCondition => {
+            if (condition.includes("-")) {
+                const bounds = condition.split("-");
                 try {
                     return new TimeCondition({
                         type: TimeConditionType.range,
@@ -62,8 +63,8 @@ export class TimeCondition {
                         )}`
                     );
                 }
-            } else if (value.includes("*/")) {
-                const period = value.replace("*/", "");
+            } else if (condition.includes("*/")) {
+                const period = condition.replace("*/", "");
                 try {
                     return new TimeCondition({
                         type: TimeConditionType.interval,
@@ -81,12 +82,12 @@ export class TimeCondition {
                 try {
                     return new TimeCondition({
                         type: TimeConditionType.number,
-                        value: parseInt(value),
+                        value: parseInt(condition),
                         scale,
                     });
                 } catch (error) {
                     throw new Error(
-                        `Conversion from string value to TimeCondition failed, due to parseInt being unable to extract numbers from '${value}'\n\nAbove error: ${JSON.stringify(
+                        `Conversion from string value to TimeCondition failed, due to parseInt being unable to extract numbers from '${string}'\n\nAbove error: ${JSON.stringify(
                             error
                         )}`
                     );
