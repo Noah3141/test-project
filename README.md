@@ -17,7 +17,7 @@ Syntax appears to be:
 
 1. Install npm
 2. Command line `npm install -g typescript`
-3. Command line `npx tsc src/main.ts --outDir ./target; node target/main.js` (replace ; with your operating systems command chain syntax, e.g. &&)
+3. Command line `npx tsc src/main.ts --outDir ./target; node target/main.js`
 
 (You may need to run PowerShell as administrator, and run `Get-ExecutionPolicy`. If it returns "Restricted", run `Set-ExecutionPolicy RemoteSigned`)
 
