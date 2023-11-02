@@ -18,7 +18,6 @@ Syntax appears to be:
 1. Install npm
 2. Command line `npm install -g typescript`
 3. Command line `npx tsc src/main.ts --outDir ./target; node target/main.js` (replace ; with your operating systems command chain syntax, e.g. &&)
-4. Command line `node main.js`
 
 (You may need to run PowerShell as administrator, and run `Get-ExecutionPolicy`. If it returns "Restricted", run `Set-ExecutionPolicy RemoteSigned`)
 
@@ -29,8 +28,12 @@ I chose to comment heavily, assuming that the code would need to be comprehensib
 Being unfamiliar with Chrontabs as a concept, there was some arbitrary naming going on.
 I know "more code is not necessarily better"!
 
+I have labeled fields and methods in a redundant manner to make consuming the library easier.
+
 ## Interpretation of chrontab syntax:
 
 10 0 \* \* \* = Any DOM any DOW any month, at the 0th hour and 10th minute
 
 16-32 \* \* \* \* = Every minute from the 17th (0-index) minute to the 32-th minute, any hour, any day etc.
+
+50 1 1-6,8-31 \* 7 = 1:50 AM, 1st to 6th of any month, if it be Sunday

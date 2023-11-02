@@ -1,5 +1,7 @@
-import { log } from "./utils";
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TimeCondition = void 0;
+var utils_1 = require("./utils");
 /** A particular column of a crontab job listing. Fields:
  *
  * `scale: Scale`  marks the column as one of `"minute" | "hour" | "dom" | "month" | "dow"`
@@ -8,44 +10,30 @@ import { log } from "./utils";
  *
  * `value: number | Interval | Range | null`, where `Interval` is a number, `Range` has a min and a max, and null encodes a wildcard.
  */
-export class TimeCondition {
-    scale: Scale;
-    type: TimeConditionType;
-    value: number | Interval | Range | null;
-
-    constructor({
-        type,
-        value,
-        scale,
-    }: {
-        type: TimeConditionType;
-        value: number | Interval | Range | null;
-        scale: Scale;
-    }) {
+var TimeCondition = /** @class */ (function () {
+    function TimeCondition(_a) {
+        var type = _a.type, value = _a.value, scale = _a.scale;
         this.type = type;
         this.scale = scale;
         this.value = value;
     }
     /**  Converts a singular time entry into its values, e.g.
-     * 
+     *
      * \*\/10 `=> [{TimeConditionType.interval, value: 10}]: TimeCondition[]`
-     * 
+     *
      * 1-6, 4-10 `=> [{TimeConditionType.range, value: {min:1, max:6} }, {TimeConditionType.range, value: {min:4, max:10} }]: TimeCondition[]`
-    /* 
+    /*
     */
-    static fromString(string: string, scale: Scale): TimeCondition[] {
+    TimeCondition.fromString = function (string, scale) {
         // Convert a string value into corresponding TimeCondition
-
         if (string === "*") {
-            return [new TimeCondition({ type: TimeConditionType.wildcard, value: null, scale })];
+            return [new TimeCondition({ type: TimeConditionType.wildcard, value: null, scale: scale })];
         }
         // ! Assumes there cannot be both a range and a repitition interval, e.g. */1-2
-        const values = string.split(",");
-
-        return values.map((value): TimeCondition => {
+        var values = string.split(",");
+        return values.map(function (value) {
             if (value.includes("-")) {
-                const bounds = value.split("-");
-
+                var bounds = value.split("-");
                 try {
                     return new TimeCondition({
                         type: TimeConditionType.range,
@@ -53,79 +41,69 @@ export class TimeCondition {
                             min: parseInt(bounds[0]),
                             max: parseInt(bounds[1]),
                         },
-                        scale,
+                        scale: scale,
                     });
-                } catch (error) {
-                    throw new Error(
-                        `Conversion from string value to TimeCondition failed, due to parseInt being unable to extract numbers from '${string}'\n\nAbove error: ${JSON.stringify(
-                            error
-                        )}`
-                    );
                 }
-            } else if (value.includes("*/")) {
-                const period = value.replace("*/", "");
+                catch (error) {
+                    throw new Error("Conversion from string value to TimeCondition failed, due to parseInt being unable to extract numbers from '".concat(string, "'\n\nAbove error: ").concat(JSON.stringify(error)));
+                }
+            }
+            else if (value.includes("*/")) {
+                var period = value.replace("*/", "");
                 try {
                     return new TimeCondition({
                         type: TimeConditionType.interval,
                         value: parseInt(period),
-                        scale,
+                        scale: scale,
                     });
-                } catch (error) {
-                    throw new Error(
-                        `Conversion from string value to TimeCondition failed, due to parseInt being unable to extract numbers from '${string}' at ${period} \n\nAbove error: ${JSON.stringify(
-                            error
-                        )}`
-                    );
                 }
-            } else {
+                catch (error) {
+                    throw new Error("Conversion from string value to TimeCondition failed, due to parseInt being unable to extract numbers from '".concat(string, "' at ").concat(period, " \n\nAbove error: ").concat(JSON.stringify(error)));
+                }
+            }
+            else {
                 try {
                     return new TimeCondition({
                         type: TimeConditionType.number,
                         value: parseInt(value),
-                        scale,
+                        scale: scale,
                     });
-                } catch (error) {
-                    throw new Error(
-                        `Conversion from string value to TimeCondition failed, due to parseInt being unable to extract numbers from '${value}'\n\nAbove error: ${JSON.stringify(
-                            error
-                        )}`
-                    );
+                }
+                catch (error) {
+                    throw new Error("Conversion from string value to TimeCondition failed, due to parseInt being unable to extract numbers from '".concat(value, "'\n\nAbove error: ").concat(JSON.stringify(error)));
                 }
             }
         });
-    }
-
+    };
     /** Determines whether the provides number value, which could be minutes, hours, days etc (and should be passed in valid form) matches this TimeConditions criteria */
-    passesCondition(time: number): boolean {
-        log(`\n\n\nChecking validity of ${time} against ${JSON.stringify(this, undefined, 1)}`);
-        let pass;
+    TimeCondition.prototype.passesCondition = function (time) {
+        (0, utils_1.log)("\n\n\nChecking validity of ".concat(time, " against ").concat(JSON.stringify(this, undefined, 1)));
+        var pass;
         switch (this.type) {
             case TimeConditionType.number:
                 pass = this.value === time;
                 break;
-
             case TimeConditionType.interval:
-                const value: Interval = this.value as Interval;
-                const period = value;
+                var value = this.value;
+                var period = value;
                 pass = time % period === 0;
                 break;
-
             case TimeConditionType.range:
-                const min = (this.value as Range).min;
-                const max = (this.value as Range).max;
-                log(`Range: ${min} - ${max}`);
+                var min = this.value.min;
+                var max = this.value.max;
+                (0, utils_1.log)("Range: ".concat(min, " - ").concat(max));
                 pass = min <= time && time <= max;
                 break;
-
             case TimeConditionType.wildcard:
                 pass = true;
                 break;
         }
-        log(pass);
+        (0, utils_1.log)(pass);
         return pass;
-    }
-}
-
+    };
+    return TimeCondition;
+}());
+exports.TimeCondition = TimeCondition;
 /// This is where I would like to use Zod (type checking library that upgrades from base TypeScript) instead of this pattern! This allows me to check later more simpler for type. Not a fan of doing it like this though.
 /** Possible variants of a time condition
  *
@@ -137,19 +115,10 @@ export class TimeCondition {
  *
  * wildcard, e.g. * (any value)
  */
-enum TimeConditionType {
-    number = "number",
-    interval = "interval",
-    range = "range",
-    wildcard = "wildcard",
-}
-
-/** Labels a number as an Interval, as in  \*\/5 */
-export type Interval = number;
-
-type Range = {
-    min: number;
-    max: number;
-};
-
-export type Scale = "minute" | "hour" | "dom" | "month" | "dow";
+var TimeConditionType;
+(function (TimeConditionType) {
+    TimeConditionType["number"] = "number";
+    TimeConditionType["interval"] = "interval";
+    TimeConditionType["range"] = "range";
+    TimeConditionType["wildcard"] = "wildcard";
+})(TimeConditionType || (TimeConditionType = {}));

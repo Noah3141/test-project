@@ -4,7 +4,7 @@ exports.log = void 0;
 var main_1 = require("./main");
 var log = function (msg) {
     if (main_1.debug) {
-        console.log("\n".concat(msg, "\n"));
+        console.log(msg);
     }
 };
 exports.log = log;

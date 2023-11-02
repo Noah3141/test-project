@@ -1,29 +1,14 @@
 import { Chron } from "./ChronTab";
+import { testSuite } from "./test";
 
-function assertEqual<T>(actual: T, expected: T, message: string = ""): void {
-    if (actual !== expected) {
-        throw new Error(
-            `Assertion failed: ${message}. 
-            \n     Provided: ${actual},
-            \n     !=
-            \n     Expected: ${expected}
-            \n\n\r`
-        );
-    }
-}
-
-export const debug = true;
+export const debug = false;
 
 const chron = new Chron();
+
 chron.import("./chrontab.txt");
 
-console.log(`Main: Chron filepath read and set to ${chron.filepath}`);
+// chron.printJobs()
 
-console.log(chron.jobs[2].nextRunTime());
-// chron.printNextJobTimes()
+testSuite();
 
-assertEqual(
-    chron.jobs.at(0)?.nextRunTime(), // Minutely
-    new Date(2023, 11, 1, new Date().getHours(), new Date().getMinutes() + 1),
-    "Test 1"
-);
+chron.printNextRuntimes({ criteriaLabels: false });
