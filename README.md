@@ -48,4 +48,4 @@ I ended up choosing to emphasize checking a _proposed_ time as either valid or n
 
 16-32 \* \* \* \* = Every minute from the 17th (0-index) minute to the 32-th minute, any hour, any day etc.
 
-50 1 1-6,8-31 \* 7 = 1:50 AM, 1st to 6th of any month, if it be Sunday
+50 1 1-6,8-31 \* 7 = 1:50 AM, 1st to 6th OR 8th to 31st of any month, if it be Sunday
