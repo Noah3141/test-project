@@ -19,7 +19,9 @@ Syntax appears to be:
 2. Command line `npm install -g typescript`
 3. Command line `npx tsc src/main.ts --outDir ./target; node target/main.js`
 
-(You may need to run PowerShell as administrator, and run `Get-ExecutionPolicy`. If it returns "Restricted", run `Set-ExecutionPolicy RemoteSigned`)
+(On Windows, you may need to run PowerShell as administrator, and run `Get-ExecutionPolicy`. If it returns "Restricted", run `Set-ExecutionPolicy RemoteSigned`)
+
+`src/main` offers the entry point. `debug` can be set to true to enable other log statements, but this is not set up to be insightful now that it works.
 
 ## Decisions
 
@@ -29,6 +31,12 @@ Being unfamiliar with Chrontabs as a concept, there was some arbitrary naming go
 I know "more code is not necessarily better"!
 
 I have labeled fields and methods in a redundant manner to make consuming the library easier.
+
+I tried 2 other ways of approaching the actual determination of the next scheduled time. First I tried to do it straight through JS/TS syntax for Date creation:
+
+`new Date(year, month, day, hour, minute)` , where the values are determined through comparing "now" with the next lowest not yet passed possibility which passes the `TimeConditions`. This is a more complex approach than it seems. I also thought of converting everything all over the place into minutes, and doing a kind of matrix multiplication of a minute possibility-schedule across hours/days/months, making a great long array of times, sorting, and picking the next above "now". That has problems too.
+
+I ended up choosing to emphasize checking a _proposed_ time as either valid or not, rather than generate a valid time directly. This meant I had to do a fairly unideal progressive incrementing, where it checks thousands of proposed times until it gets the first valid one. While this brute force method isn't ideal, it is amenable to some optimizations, and can be extending into alternative solutions that target time proposals. It is mostly slowed down by the presence of implausible or unfortunate time criteria, such as Job 20 (ID:19): "50 1 1-6,8-31 \* 7". The way I've arranged the program allows for the insertion of ways to detect criteria that are likely to push the next scheduled date out very far (such as _both_ an interval for DOM and a value for DOW), and address these combinations in targeted ways.
 
 ## Interpretation of chrontab syntax:
 
