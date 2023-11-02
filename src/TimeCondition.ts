@@ -44,9 +44,9 @@ export class TimeCondition {
         const timeConditions = string.split(",");
 
         // Turn each column (`Scale`) into an array, containing each of its conditions (e.g. both of '1-6, 7-9')
-        return timeConditions.map((condition): TimeCondition => {
-            if (condition.includes("-")) {
-                const bounds = condition.split("-");
+        return timeConditions.map((value): TimeCondition => {
+            if (value.includes("-")) {
+                const bounds = value.split("-");
                 try {
                     return new TimeCondition({
                         type: TimeConditionType.range,
@@ -63,8 +63,8 @@ export class TimeCondition {
                         )}`
                     );
                 }
-            } else if (condition.includes("*/")) {
-                const period = condition.replace("*/", "");
+            } else if (value.includes("*/")) {
+                const period = value.replace("*/", "");
                 try {
                     return new TimeCondition({
                         type: TimeConditionType.interval,
@@ -82,7 +82,7 @@ export class TimeCondition {
                 try {
                     return new TimeCondition({
                         type: TimeConditionType.number,
-                        value: parseInt(condition),
+                        value: parseInt(value),
                         scale,
                     });
                 } catch (error) {
