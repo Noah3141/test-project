@@ -15,9 +15,13 @@ Syntax appears to be:
 
 ## Running This Code
 
-1. Install npm
-2. Command line `npm install -g typescript`
-3. Command line `npx tsc src/main.ts --outDir ./target; node target/main.js`
+> 1. Install npm (https://nodejs.org/)
+> 2. Command line `node target/main.js`
+
+Developing:
+
+> 2. Command line `npm install -g typescript`
+> 3. Command line `npx tsc src/main.ts --outDir ./target; node target/main.js`
 
 (On Windows, you may need to run PowerShell as administrator, and run `Get-ExecutionPolicy`. If it returns "Restricted", run `Set-ExecutionPolicy RemoteSigned`)
 
